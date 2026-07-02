@@ -52,14 +52,14 @@ class LicHelper
         $meta = self::get_package_by_path($slug);
 
         $packages[$slug] = [
-            'name'               => $meta['name'],
-            'version'            => $meta['version'],
-            'type'               => $meta['type'],
-            'last_updated'       => $meta['last_updated'],
-            'file_name'          => $meta['file_name'],
-            'file_size'          => number_format($meta['file_size'] / (1024 * 1024), 2, '.', '').' MB',
-            'file_last_modified' => date_i18n('d F Y H:i:s', $meta['file_last_modified']),
-            'slug'               => $meta['slug'],
+            'name'               => $meta['name'] ?? '',
+            'version'            => $meta['version'] ?? '',
+            'type'               => $meta['type'] ?? '',
+            'last_updated'       => $meta['last_updated'] ?? '',
+            'file_name'          => $meta['file_name'] ?? '',
+            'file_size'          => isset($meta['file_size']) ? number_format($meta['file_size'] / (1024 * 1024), 2, '.', '').' MB' : '',
+            'file_last_modified' => isset($meta['file_last_modified']) ? date_i18n('d F Y H:i:s', $meta['file_last_modified']) : '',
+            'slug'               => $meta['slug'] ?? $slug,
             'tested'             => $meta['tested'] ?? '',
             'change_log'         => $meta['sections']['changelog'] ?? '',
             'description'        => $meta['sections']['description'] ?? '',
