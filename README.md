@@ -20,6 +20,7 @@
 
 ### Через Composer (рекомендуется)
 ```bash
+composer config repositories.tikhomirov-wc-plugin-update-server git https://github.com/tikhomirov/wc-plugin-update-server.git
 composer require tikhomirov/wc-plugin-update-server
 ```
 
