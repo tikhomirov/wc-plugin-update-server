@@ -1,44 +1,48 @@
-# WooCommerce UpdatePulse License & Update Server (`wc-plugin-update-server`)
+# WooCommerce UpdatePulse License & Update Server
 
-![WordPress Plugin](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
-![PHP Support](https://img.shields.io/badge/PHP-7.4%20%7C%208.0%20%7C%208.1%20%7C%208.2%20%7C%208.3-777BB4.svg)
-![License](https://img.shields.io/badge/License-GPLv2-green.svg)
+[![WordPress Plugin](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)](https://wordpress.org/)
+[![PHP Support](https://img.shields.io/badge/PHP-7.4%20%7C%208.0%20%7C%208.1%20%7C%208.2%20%7C%208.3-777BB4.svg)](https://php.net/)
+[![License](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
 
-Интеграция WooCommerce с сервером обновлений и лицензирования UpdatePulse Server для автоматической генерации лицензий после оплаты заказа.
+Integrates WooCommerce orders with UpdatePulse Server to automate software license key generation and renewals.
 
----
+## Requirements
 
-## 🚀 Возможности
+| Component | Minimum | Tested |
+|-----------|---------|--------|
+| **WordPress** | 5.0 | 5.0 – 6.7 |
+| **PHP** | 7.4 | 7.4, 8.0, 8.1, 8.2, 8.3 |
 
-- 🔑 **Автоматическая выдача ключей:** Генерация лицензионного ключа сразу после успешной оплаты заказа WooCommerce.
-- 🔄 **Авто-обновления:** Связка продуктов WooCommerce с репозиторием UpdatePulse Server.
-- 💼 **Управление продлением:** Возможность продления лицензий клиентами из личного кабинета.
+## Features
 
----
+- **License Generation:** Auto-create license keys upon successful order payment.
 
-## 📥 Установка
+## Installation
 
-### Через Composer (рекомендуется)
+### Via Composer (VCS Repository)
+Add the repository to your `composer.json` and require the package:
+
 ```bash
 composer config repositories.tikhomirov-wc-plugin-update-server git https://github.com/tikhomirov/wc-plugin-update-server.git
 composer require tikhomirov/wc-plugin-update-server
 ```
 
-### Вручную
-1. Скачайте ZIP-архив репозитория.
-2. Распакуйте в директорию `/wp-content/plugins/wc-plugin-update-server/`.
-3. Активируйте плагин в админ-панели **Плагины → Установленные**.
+### Manual Installation
+1. Download the latest ZIP release.
+2. Upload the plugin folder to the `/wp-content/plugins/` directory.
+3. Activate the plugin through the 'Plugins' menu in WordPress.
 
 ---
 
-## 💻 Использование
+## Русский
 
-1. Укажите URL и API-ключ вашего UpdatePulse Server в настройках плагина.
-2. В свойствах товара WooCommerce выберите соответствующий программный продукт.
+Интегрирует заказы WooCommerce с сервером обновлений UpdatePulse для автоматической генерации и продления лицензий.
 
----
+### Совместимость
+- **WordPress:** от 5.0 и выше
+- **PHP:** от 7.4 до 8.3
 
-## 🛠️ Требования
+### Возможности
+- Автоматическая генерация лицензионных ключей после оплаты в WooCommerce.
 
-- **WordPress:** 5.0 или выше
-- **PHP:** 7.4, 8.0, 8.1, 8.2, 8.3
+**Установка:** подключите через Composer (VCS) или скачайте архив и активируйте в панели управления WordPress.
