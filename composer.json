@@ -1,6 +1,6 @@
 {
   "name": "tikhomirov/wc-plugin-update-server",
-  "description": "Интеграция WooCommerce с сервером обновлений и лицензирования UpdatePulse Server для автоматической генерации лицензий после оплаты заказа.",
+  "description": "WordPress plugin wc-plugin-update-server",
   "type": "wordpress-plugin",
   "license": "GPL-3.0-or-later",
   "authors": [
