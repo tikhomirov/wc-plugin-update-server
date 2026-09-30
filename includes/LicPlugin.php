@@ -51,7 +51,7 @@ final class LicPlugin {
 
 		// Get out if WC is not active
 		if ( ! function_exists( 'WC' ) || ! class_exists( 'Anyape\UpdatePulse\Server\API\License_API' ) ) {
-			return add_action( 'admin_notices', fn() => include_once '../templates/notice-wc-not-found.php' );
+			return add_action( 'admin_notices', fn() => include_once $this->dir . 'templates/notice-wc-not-found.php' );
 		}
 
 		( new LicProduct() )->add_actions(); // No deps
