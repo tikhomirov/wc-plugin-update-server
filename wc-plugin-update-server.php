@@ -3,7 +3,7 @@
  * Plugin Name:     WooCommerce and UpdatePulse Server integration
  * Plugin URI:      http://rwsite.ru
  * Description:     WooCommerce and UpdatePulse Server integration
- * Version:         2.0.0
+ * Version:         2.0.1
  * Author:          Aleksei Tikhomirov
  * Author URI:      http://rwsite.ru
  * Text Domain:     wc-pus

@@ -32,38 +32,41 @@ final class LicOrder
     /**
      * Generate licences and save to order data
      */
-    public function create_license_keys(int $order_id, $old_status, $new_status, WC_Order $wc_order = null): void
+    public function create_license_keys(int $order_id, $old_status, $new_status, ?WC_Order $wc_order = null): void
     {
         if ($new_status !== "completed") {
             return;
         }
 
-        $payment_meta = $licenses = [];
+        $licenses = [];
         $order = $wc_order ?? wc_get_order($order_id);
 
-        $user_id = $order->get_user_id();
-        $get_user_meta = get_user_meta($user_id);
-
-        if (!is_array($get_user_meta)) {
-            error_log('get_user_meta() failed!');
+        if (!$order instanceof WC_Order) {
+            error_log(sprintf('WC PUS could not create licenses: order %d was not found.', $order_id));
             return;
         }
 
-        $payment_meta['user_info']['first_name'] = $get_user_meta['billing_first_name'][0];
-        $payment_meta['user_info']['last_name'] = $get_user_meta['billing_last_name'][0] ?? '';
-        $payment_meta['user_info']['email'] = $get_user_meta['billing_email'][0];
-        $payment_meta['user_info']['company'] = $get_user_meta['billing_company'][0] ?? '';
+        if (!empty($order->get_meta(self::key))) {
+            return;
+        }
+
+        $owner = $this->get_owner_data($order);
+
+        if (empty($owner['email'])) {
+            self::add_order_note($order_id,
+                __('License could not be created: the order has no billing email.', 'wc-pus'));
+            return;
+        }
 
         // Generate license keys for all products in order
         foreach ($order->get_items() as $item => $values) {
 
             if (!$values instanceof WC_Order_Item_Product) {
-                trigger_error('!$values instanceof WC_Order_Item_Product');
+                continue;
             }
 
             $lic_key = $values->get_meta('_wc_pus_license');
             $product_id = $values->get_product_id();
-            $product = new WC_Product($product_id);
 
             if (false === LicProduct::get_licensing_enabled($product_id) && empty($lic_key)) {
                 continue;
@@ -115,9 +118,14 @@ final class LicOrder
                     break;
                 }
 
-                // Build item name
-                $owner_name = (isset($payment_meta['user_info']['first_name'])) ? $payment_meta['user_info']['first_name'] : '';
-                $owner_name .= (isset($payment_meta['user_info']['last_name'])) ? ' '.$payment_meta['user_info']['last_name'] : '';
+                $product = wc_get_product($product_id);
+
+                if (!$product instanceof WC_Product) {
+                    self::add_order_note($order_id, __('License could not be created: product not found.', 'wc-pus'));
+                    break;
+                }
+
+                $owner_name = trim($owner['first_name'].' '.$owner['last_name']);
 
                 // Build parameters
                 $api_params = [];
@@ -132,17 +140,17 @@ final class LicOrder
                     'status'              => 'pending',
                     // setup
                     'max_allowed_domains' => $sites_allowed,
-                    'email'               => $payment_meta['user_info']['email'] ?? '',
+                    'email'               => $owner['email'],
                     'date_renewed'        => mysql2date('Y-m-d', current_time('mysql'), false),
                     'date_expiry'         => $renewal_period,
                     'package_slug'        => $product_slug,
                     'package_type'        => $product_type,
                     'owner_name'          => $owner_name,
-                    'company_name'        => $payment_meta['user_info']['company'],
+                    'company_name'        => $owner['company'],
                     'txn_id'              => (string) $order_id,
                     // custom
-                    'first_name'          => $payment_meta['user_info']['first_name'] ?? '',
-                    'last_name'           => $payment_meta['user_info']['last_name'] ?? '',
+                    'first_name'          => $owner['first_name'],
+                    'last_name'           => $owner['last_name'],
                 ];
 
                 // @see upserv_build_nonce_api_signature()
@@ -160,8 +168,13 @@ final class LicOrder
                     ];
                 } else {
                     $message = __('License Key(s) could not be created.', 'wc-pus');
-                    if (!empty($result['errors'][0])) {
-                        $message .= $result['errors'][0];
+                    // License_API::add() always returns an object, never an array.
+                    $error = $result->errors[0] ?? $result->message ?? '';
+                    if (is_array($error)) {
+                        $error = reset($error);
+                    }
+                    if ($error) {
+                        $message .= ' ' . $error;
                     }
                     trigger_error($message);
                     self::add_order_note($order_id, $message);
@@ -185,12 +198,45 @@ final class LicOrder
     }
 
     /**
+     * Billing data stored on the order is the purchase-time source of truth.
+     * Customer metadata is only a fallback for incomplete legacy orders.
+     *
+     * @return array{first_name: string, last_name: string, email: string, company: string}
+     */
+    private function get_owner_data(WC_Order $order): array
+    {
+        $owner = [
+            'first_name' => $order->get_billing_first_name(),
+            'last_name' => $order->get_billing_last_name(),
+            'email' => $order->get_billing_email(),
+            'company' => $order->get_billing_company(),
+        ];
+
+        $user_id = $order->get_user_id();
+
+        if (!$user_id) {
+            return $owner;
+        }
+
+        foreach (array_keys($owner) as $field) {
+            if ('' === $owner[$field]) {
+                $owner[$field] = (string) get_user_meta($user_id, 'billing_'.$field, true);
+            }
+        }
+
+        return $owner;
+    }
+
+    /**
      * Add note to order
      */
     public static function add_order_note(int $order_id, string $note)
     {
         $order = wc_get_order($order_id);
-        $order->add_order_note($note);
+
+        if ($order instanceof WC_Order) {
+            $order->add_order_note($note);
+        }
     }
 
     /**

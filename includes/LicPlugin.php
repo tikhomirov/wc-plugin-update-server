@@ -48,6 +48,7 @@ final class LicPlugin {
 	 * Include necessary files
 	 */
 	private function includes() {
+		( new LicDbMigrations() )->add_actions();
 
 		// Get out if WC is not active
 		if ( ! function_exists( 'WC' ) || ! class_exists( 'Anyape\UpdatePulse\Server\API\License_API' ) ) {
@@ -82,7 +83,7 @@ final class LicPlugin {
 	}
 
 	public static function activation() {
-		// nothing
+		LicDbMigrations::migrate();
 	}
 
 	public static function uninstall() {
